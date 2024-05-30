@@ -10,7 +10,18 @@ public extension AnyChangeEffect {
     ///   - destination: The destination of the particle.
     ///   - layer: The `ParticleLayer` on which to render the effect, default is `local`.
     ///   - particles: The particles to emit.
-    static func react(origin: UnitPoint = .center, destination: CGPoint, layer: ParticleLayer = .local, @ViewBuilder _ particles: () -> some View) -> AnyChangeEffect {
+    static func react(
+        origin: UnitPoint = .center,
+        destination: CGPoint,
+        layer: ParticleLayer = .local,
+        insets: EdgeInsets = EdgeInsets(
+            top: 400,
+            leading: 80,
+            bottom: 0,
+            trailing: 80
+        ),
+        @ViewBuilder _ particles: () -> some View
+    ) -> AnyChangeEffect {
         let particles = particles()
         return .simulation { change in
             FloatingReactionParticleSimulation(
@@ -18,7 +29,8 @@ public extension AnyChangeEffect {
                 destination: destination,
                 particles: particles,
                 impulseCount: change,
-                layer: layer
+                layer: layer,
+                insets: insets
             )
         }
     }
@@ -61,7 +73,7 @@ internal struct FloatingReactionParticleSimulation<ParticlesView: View>: ViewMod
         particles: ParticlesView,
         impulseCount: Int = 0,
         layer: ParticleLayer,
-        insets: EdgeInsets = EdgeInsets(top: 400, leading: 80, bottom: 0, trailing: 80)
+        insets: EdgeInsets
     ) {
         self.origin = origin
         self.destination = destination
