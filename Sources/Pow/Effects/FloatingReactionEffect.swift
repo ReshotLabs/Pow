@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if os(iOS)
+import CoreHaptics
+#endif
+
 public extension AnyChangeEffect {
     /// An effect that emits the provided particles from the origin point to the destination point.
     ///
@@ -62,6 +66,7 @@ internal struct FloatingReactionParticleSimulation<ParticlesView: View>: ViewMod
 
     private let layer: ParticleLayer
     private let insets: EdgeInsets
+    private let hapticGenerator = UIImpactFeedbackGenerator(style: .rigid)
 
     private var isSimulationPaused: Bool {
         items.isEmpty
@@ -165,6 +170,7 @@ internal struct FloatingReactionParticleSimulation<ParticlesView: View>: ViewMod
             .particleLayerOverlay(alignment: .top, layer: layer, isEnabled: !isSimulationPaused) {
                 overlay
             }
+            .usesCustomHaptics()
             .onChange(of: impulseCount) { newValue in
                 let item = Item(
                     id: UUID(),
@@ -175,6 +181,15 @@ internal struct FloatingReactionParticleSimulation<ParticlesView: View>: ViewMod
                 withAnimation(nil) {
                     items.append(item)
                 }
+                
+                #if os(iOS)
+//                if let hapticPattern {
+//                    Haptics.play(hapticPattern)
+//                }
+                let intensity = min(1, CGFloat(impulseCount) / 25 + 0.25)
+                hapticGenerator.impactOccurred(intensity: intensity)
+                #endif
+
             }
     }
 
@@ -203,6 +218,38 @@ internal struct FloatingReactionParticleSimulation<ParticlesView: View>: ViewMod
             }
         }
     }
+    
+        
+    #if os(iOS)
+    private var hapticPattern: CHHapticPattern? {
+        var rng = SeededRandomNumberGenerator(seed: 123)
+
+        return try? CHHapticPattern(
+            events: (0 ..< 5).map { i in
+                let i = Float(i)
+
+                let relativeTime: TimeInterval
+
+                if i == 0 {
+                    relativeTime = 0
+                } else {
+                    relativeTime = Double(i * 0.03) + .random(in: -0.005 ... 0.005, using: &rng)
+                }
+
+                return CHHapticEvent(
+                    eventType: .hapticContinuous,
+                    parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.6 * (i / 5) + .random(in: -0.2 ... 0.2, using: &rng)),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.2)
+                    ],
+                    relativeTime: relativeTime,
+                    duration: 0.05
+                )
+            },
+            parameterCurves: []
+        )
+    }
+    #endif
 }
 
 private struct RelativeOffsetModifier: GeometryEffect {
