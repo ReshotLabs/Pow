@@ -54,7 +54,7 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
     }
     
     @State private var items: [Item] = []
-    @State private var symbolCount: Int = 1 // Default to 1 to avoid division by zero
+    @State private var symbolCount: Int = 1
     private let target: CGFloat = 1.0
     private let layer: ParticleLayer
     
@@ -96,7 +96,6 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
                     i += 1
                 }
                 
-                // Update symbolCount based on resolved symbols
                 if !symbols.isEmpty {
                     symbolCount = symbols.count
                 }
@@ -154,8 +153,10 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
                     change: newValue,
                     symbolIndex: (newValue - 1) % max(1, symbolCount)
                 )
-                withAnimation(nil) {
-                    items.append(item)
+                DispatchQueue.main.async {  // Defer state update
+                    withAnimation(nil) {
+                        items.append(item)
+                    }
                 }
             }
     }
@@ -223,7 +224,7 @@ struct FloatingParticleEffect_Previews: PreviewProvider {
                     }
                     .font(.caption.bold())
                     .foregroundStyle(.tint)
-                .tint(.blue)
+                    .tint(.blue)
                 }, value: claps)
                 
                 Button {
