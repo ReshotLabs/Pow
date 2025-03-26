@@ -5,6 +5,7 @@ public extension AnyChangeEffect {
         origin: UnitPoint = .center,
         layer: ParticleLayer = .local,
         initialVelocity: CGFloat = 100.0,
+        insets: EdgeInsets = EdgeInsets(top: 120, leading: 40, bottom: 20, trailing: 40),
         @ViewBuilder _ particles: () -> some View
     ) -> AnyChangeEffect {
         let particles = particles()
@@ -14,6 +15,7 @@ public extension AnyChangeEffect {
                 particles: particles,
                 impulseCount: change,
                 initialVelocity: initialVelocity,
+                insets: insets,
                 layer: layer
             )
         }
@@ -23,9 +25,15 @@ public extension AnyChangeEffect {
     static func floatingParticle(
         origin: UnitPoint = .center,
         initialVelocity: CGFloat = 100.0,
+        insets: EdgeInsets,
         @ViewBuilder _ particle: () -> some View
     ) -> AnyChangeEffect {
-        floatUp(origin: origin, initialVelocity: initialVelocity, particle)
+        floatUp(
+            origin: origin,
+            initialVelocity: initialVelocity,
+            insets: insets,
+            particle
+        )
     }
 }
 
@@ -34,6 +42,7 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
     var particles: ParticlesView
     var impulseCount: Int = 0
     var initialVelocity: CGFloat
+    var insets: EdgeInsets
     private let spring = Spring(zeta: 0.8, stiffness: 20)
     
     private struct Item: Identifiable {
@@ -58,12 +67,14 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
         particles: ParticlesView,
         impulseCount: Int = 0,
         initialVelocity: CGFloat,
+        insets: EdgeInsets,
         layer: ParticleLayer
     ) {
         self.origin = origin
         self.particles = particles
         self.impulseCount = impulseCount
         self.initialVelocity = initialVelocity
+        self.insets = insets
         self.layer = layer
     }
     
@@ -77,8 +88,6 @@ internal struct FloatingParticleSimulation<ParticlesView: View>: ViewModifier, S
     
     func body(content: Content) -> some View {
         let overlay = TimelineView(.animation(paused: isSimulationPaused)) { context in
-            let insets = EdgeInsets(top: 80, leading: 40, bottom: 20, trailing: 40)
-            
             Canvas { context, size in
                 var symbols: [GraphicsContext.ResolvedSymbol] = []
                 var i = 0
