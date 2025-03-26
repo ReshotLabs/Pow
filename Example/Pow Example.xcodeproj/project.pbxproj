@@ -103,6 +103,7 @@
 		54F15E5429D59D250054690B /* PulseExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F15E5329D59D250054690B /* PulseExample.swift */; };
 		54F15E5629D5A0D70054690B /* GlowExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F15E5529D5A0D70054690B /* GlowExample.swift */; };
 		B7A5DA8D2B0E853A0035FC0A /* Pow in Frameworks */ = {isa = PBXBuildFile; productRef = B7A5DA8C2B0E853A0035FC0A /* Pow */; };
+		DC79D9F12D937C440069052B /* FloatUpExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC79D9F02D937C440069052B /* FloatUpExample.swift */; };
 		FA13B8ED2B3BAF5600F58836 /* SnapshotPreferences in Frameworks */ = {isa = PBXBuildFile; productRef = FA13B8EC2B3BAF5600F58836 /* SnapshotPreferences */; };
 /* End PBXBuildFile section */
 
@@ -205,6 +206,7 @@
 		54F15E5329D59D250054690B /* PulseExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseExample.swift; sourceTree = "<group>"; };
 		54F15E5529D5A0D70054690B /* GlowExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowExample.swift; sourceTree = "<group>"; };
 		B7A5DA8A2B0E85260035FC0A /* Pow */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Pow; path = ..; sourceTree = "<group>"; };
+		DC79D9F02D937C440069052B /* FloatUpExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatUpExample.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -367,6 +369,7 @@
 				546A29C5292A4BC100A80DE2 /* JumpExample.swift */,
 				546A29C7292A4BFA00A80DE2 /* PingExample.swift */,
 				546A29C9292A4DBD00A80DE2 /* RiseExample.swift */,
+				DC79D9F02D937C440069052B /* FloatUpExample.swift */,
 				546A29CB292A559A00A80DE2 /* ShakeExample.swift */,
 				546A29CD292A591F00A80DE2 /* ShineExample.swift */,
 				54F15E5529D5A0D70054690B /* GlowExample.swift */,
@@ -556,6 +559,7 @@
 				546A29D0292A676200A80DE2 /* SkidExample.swift in Sources */,
 				546A29C6292A4BC100A80DE2 /* JumpExample.swift in Sources */,
 				546A29AA292A397100A80DE2 /* BlurExample.swift in Sources */,
+				DC79D9F12D937C440069052B /* FloatUpExample.swift in Sources */,
 				546A29A0292A341700A80DE2 /* Example.swift in Sources */,
 				54F15E5629D5A0D70054690B /* GlowExample.swift in Sources */,
 				236B13462940BAFD0022AF1F /* CheckoutExample.swift in Sources */,

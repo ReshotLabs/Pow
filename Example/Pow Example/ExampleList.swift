@@ -65,6 +65,7 @@ struct ExampleList: View {
                 JumpExample.navigationLink
                 PingExample.navigationLink
                 RiseExample.navigationLink
+                FloatUpExample.navigationLink
                 ShakeExample.navigationLink
                 ShineExample.navigationLink
                 SoundEffectExample.navigationLink
