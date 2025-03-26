@@ -60,9 +60,9 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
         origin: UnitPoint,
         particles: ParticlesView,
         impulseCount: Int = 0,
-        initialVelocity: CGFloat, // Added initialVelocity
+        initialVelocity: CGFloat,
         layer: ParticleLayer,
-        insets: EdgeInsets? // Added insets
+        insets: EdgeInsets?
     ) {
         self.origin = origin
         self.particles = particles
@@ -112,7 +112,7 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
                         context.rotate(by: .degrees(-angle.degrees * Double(1 - progress)))
                         context.translateBy(
                             x: progress * sin(progress * 1.4 * .pi) * .random(in: -20 ... 20, using: &rng),
-                            y: progress * -50 - .random(in: 0 ... 10, using: &rng) // Adjusted with initialVelocity below
+                            y: progress * (-50 - initialVelocity) - .random(in: 0 ... 10, using: &rng)
                         )
                         context.rotate(by: angle)
                         context.scaleBy(x: scale, y: scale)
