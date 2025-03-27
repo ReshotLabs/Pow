@@ -18,7 +18,7 @@ public extension AnyChangeEffect {
     static func reactionRise<Content: View>(
         origin: UnitPoint = .center,
         layer: ParticleLayer = .local,
-        initialVelocity: CGFloat = 50.0,
+        height: CGFloat = 1.0, // Changed initialVelocity to height
         insets: EdgeInsets? = nil,
         reactions: [ReactionParticleItem],
         @ViewBuilder viewForReaction: @escaping (ReactionParticleItem) -> Content
@@ -29,7 +29,7 @@ public extension AnyChangeEffect {
                 reactions: reactions,
                 viewForReaction: viewForReaction,
                 impulseCount: change,
-                initialVelocity: initialVelocity,
+                height: height, // Changed parameter name
                 layer: layer,
                 insets: insets
             )
@@ -41,13 +41,18 @@ public extension AnyChangeEffect {
 
 /// A simulation that efficiently displays reaction particles
 internal struct ReactionRiseSimulation<ParticleView: View>: ViewModifier, Simulative {
+    var initialVelocity: CGFloat = 0
+    
     var origin: UnitPoint
     var reactions: [ReactionParticleItem]
     var viewForReaction: (ReactionParticleItem) -> ParticleView
     var impulseCount: Int
-    var initialVelocity: CGFloat
+    var height: CGFloat // Changed from initialVelocity to height
     var insets: EdgeInsets?
     private let layer: ParticleLayer
+    
+    // Base height for particles
+    private let baseHeight: CGFloat = 50
     
     /// Represents a single particle with its state
     struct ParticleItem: Identifiable {
@@ -82,7 +87,7 @@ internal struct ReactionRiseSimulation<ParticleView: View>: ViewModifier, Simula
         reactions: [ReactionParticleItem],
         viewForReaction: @escaping (ReactionParticleItem) -> ParticleView,
         impulseCount: Int,
-        initialVelocity: CGFloat,
+        height: CGFloat, // Changed parameter name
         layer: ParticleLayer,
         insets: EdgeInsets?
     ) {
@@ -90,7 +95,7 @@ internal struct ReactionRiseSimulation<ParticleView: View>: ViewModifier, Simula
         self.reactions = reactions
         self.viewForReaction = viewForReaction
         self.impulseCount = impulseCount
-        self.initialVelocity = initialVelocity
+        self.height = height // Changed from initialVelocity to height
         self.layer = layer
         self.insets = insets
     }
@@ -142,10 +147,14 @@ internal struct ReactionRiseSimulation<ParticleView: View>: ViewModifier, Simula
                     context.drawLayer { context in
                         // Apply transformations based on progress and randomness
                         context.rotate(by: .degrees(-angle.degrees * Double(1 - progress)))
+                        
+                        // Updated y-translation to use height parameter
+                        // When height = 1.0, this will match the original behavior
                         context.translateBy(
                             x: progress * sin(progress * 1.4 * .pi) * .random(in: -20 ... 20, using: &rng),
-                            y: progress * -50 - initialVelocity * progress - .random(in: 0 ... 10, using: &rng)
+                            y: progress * (-baseHeight * height) - .random(in: 0 ... 10, using: &rng)
                         )
+                        
                         context.rotate(by: angle)
                         context.scaleBy(x: scale, y: scale)
 
@@ -190,7 +199,7 @@ internal struct ReactionRiseSimulation<ParticleView: View>: ViewModifier, Simula
         let item = ParticleItem(
             id: UUID(),
             progress: 0,
-            velocity: initialVelocity,
+            velocity: 0, // Initialize with zero velocity
             reaction: reaction
         )
         
