@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Extend AnyChangeEffect to add a new rise effect with initialVelocity and insets
+// Extend AnyChangeEffect to add a new rise effect with height and insets
 public extension AnyChangeEffect {
     /// An effect that emits the provided particles from the origin point and slowly float up while moving side to side.
     ///
@@ -9,14 +9,14 @@ public extension AnyChangeEffect {
     /// - Parameters:
     ///   - origin: The origin of the particle.
     ///   - layer: The `ParticleLayer` on which to render the effect, default is `local`.
-    ///   - initialVelocity: The initial upward velocity of the particles, controlling how high they rise.
+    ///   - height: Controls how high the particles rise. Higher values make particles rise higher. Default is 1.0.
     ///   - insets: Custom insets for the particle rendering area.
     ///   - particles: The particles to emit.
     static func rise(
         origin: UnitPoint = .center,
         layer: ParticleLayer = .local,
-        initialVelocity: CGFloat = 0.0, // Added initialVelocity
-        insets: EdgeInsets? = nil, // Added insets
+        height: CGFloat = 1.0, // Single parameter to control height
+        insets: EdgeInsets? = nil,
         @ViewBuilder _ particles: () -> some View
     ) -> AnyChangeEffect {
         let particles = particles()
@@ -25,7 +25,7 @@ public extension AnyChangeEffect {
                 origin: origin,
                 particles: particles,
                 impulseCount: change,
-                initialVelocity: initialVelocity,
+                height: height,
                 layer: layer,
                 insets: insets
             )
@@ -36,10 +36,17 @@ public extension AnyChangeEffect {
 internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifier, Simulative {
     var origin: UnitPoint
     var particles: ParticlesView
+    var initialVelocity: CGFloat = 0
     var impulseCount: Int = 0
-    var initialVelocity: CGFloat
-    var insets: EdgeInsets? 
-    private let spring = Spring(zeta: 1, stiffness: 30)
+    var height: CGFloat
+    var insets: EdgeInsets?
+    
+    // Adjust spring based on height to allow particles to travel further
+    private var spring: Spring {
+        // Lower stiffness for higher particles
+        let adjustedStiffness = max(10, 30 / height)
+        return Spring(zeta: 1, stiffness: adjustedStiffness)
+    }
 
     private struct Item: Identifiable {
         let id: UUID
@@ -51,6 +58,8 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
     @State private var items: [Item] = []
     private let target: CGFloat = 1.0
     private let layer: ParticleLayer
+    
+    private let baseHeight: CGFloat = 50
 
     private var isSimulationPaused: Bool {
         items.isEmpty
@@ -60,14 +69,14 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
         origin: UnitPoint,
         particles: ParticlesView,
         impulseCount: Int = 0,
-        initialVelocity: CGFloat,
+        height: CGFloat,
         layer: ParticleLayer,
         insets: EdgeInsets?
     ) {
         self.origin = origin
         self.particles = particles
         self.impulseCount = impulseCount
-        self.initialVelocity = initialVelocity
+        self.height = height
         self.layer = layer
         self.insets = insets
     }
@@ -106,13 +115,16 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
                     let progress = item.progress
                     let angle = Angle.degrees(.random(in: -10 ... 10, using: &rng))
                     let scale = 1 + 0.2 * progress
+                    
+                    // Calculate a height curve that gives more dramatic rise for higher height values
+                    let heightCurve = -baseHeight * height * (1 + 0.5 * (height - 1))
 
                     context.opacity = 1.0 - pow(1.0 - 2.0 * progress, 4.0)
                     context.drawLayer { context in
                         context.rotate(by: .degrees(-angle.degrees * Double(1 - progress)))
                         context.translateBy(
                             x: progress * sin(progress * 1.4 * .pi) * .random(in: -20 ... 20, using: &rng),
-                            y: progress * (-50 - initialVelocity) - .random(in: 0 ... 10, using: &rng)
+                            y: progress * heightCurve - .random(in: 0 ... 10, using: &rng)
                         )
                         context.rotate(by: angle)
                         context.scaleBy(x: scale, y: scale)
@@ -145,7 +157,7 @@ internal struct CustomRisingParticleSimulation<ParticlesView: View>: ViewModifie
                 let item = Item(
                     id: UUID(),
                     progress: 0,
-                    velocity: initialVelocity, // Use initialVelocity
+                    velocity: 0,
                     change: newValue
                 )
                 withAnimation(nil) {
